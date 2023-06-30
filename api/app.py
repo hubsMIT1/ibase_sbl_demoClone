@@ -234,7 +234,7 @@ def add_request():
             ]
         }
         reqCollection.insert_one(new_location)
-        send_email(subject, sender, recipients, body)
+    send_email(subject, sender, recipients, body)
 
     return jsonify({'message': 'Request submitted successfully'})
 
