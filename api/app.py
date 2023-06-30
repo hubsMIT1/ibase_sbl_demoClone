@@ -99,12 +99,11 @@ def update_city(location_name, city_name):
         city_to_update = next((city for city in cities if city['cityName'] == city_name), None)
 
         if city_to_update:
-            city_to_update['table'] = updated_city['table']
+            city_to_update['table']['parts'].append(updated_city['table']['parts'][0])
             collection.update_one(
                 {'locationName': location_name, 'cities.cityName': city_name},
                 {'$set': {'cities': cities}}
             )
-            #print(type(updated_city['table']['parts'][0]['Quantity']))
             # Send email notification for city/location update
             subject = 'City/Location Update'
             sender = 'mitashiv0101@gmail.com'
@@ -115,7 +114,7 @@ def update_city(location_name, city_name):
             if int(updated_city['table']['parts'][0]['Quantity']) < int(updated_city['table']['parts'][0]['Min Quantity']):
                 # Send an email if the quantity falls below the minimum
                 subject = f"Low Quantity Alert: {location_name} - {city_name}"
-                body = f"The quantity of {city_name} in {location_name} has fallen below('Quantity':{updated_city['table']['parts'][0]['Quantity']},'Min Quantity':{updated_city['table']['parts'][0]['Min Quantity']}) the minimum threshold."
+                body = f"The quantity of {city_name} in {location_name} has fallen below the minimum threshold."
                 send_email(subject, sender, recipients, body)
 
             return jsonify({'message': 'City updated successfully'})
@@ -123,7 +122,7 @@ def update_city(location_name, city_name):
             return jsonify({'message': 'City not found in the specified location'}), 404
     else:
         return jsonify({'message': 'Location not found'}), 404
-    
+
 @app.route('/locations/<location_name>/cities/<city_name>', methods=['PATCH'])
 def update_parts(location_name, city_name):
     updated_parts = request.get_json()
