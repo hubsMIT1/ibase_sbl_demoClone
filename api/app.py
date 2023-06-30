@@ -123,36 +123,55 @@ def update_city(location_name, city_name):
     else:
         return jsonify({'message': 'Location not found'}), 404
 
-@app.route('/locations/<location_name>/cities/<city_name>', methods=['PATCH'])
-def update_parts(location_name, city_name):
-    updated_parts = request.get_json()
+# @app.route('/locations/<location_name>/cities/<city_name>', methods=['PATCH'])
+# def update_parts(location_name, city_name):
+#     updated_parts = request.get_json()
 
-    location = collection.find_one({'locationName': location_name, 'cities.cityName': city_name})
+#     location = collection.find_one({'locationName': location_name, 'cities.cityName': city_name})
 
+#     if location:
+#         cities = location['cities']
+#         city_to_update = next((city for city in cities if city['cityName'] == city_name), None)
+
+#         if city_to_update:
+#             parts = city_to_update['table']['parts']
+
+#             if '$pull' in updated_parts:
+#                 # Delete objects from parts array
+#                 for part in updated_parts['$pull']['cities.$.table.parts']:
+#                     parts = [p for p in parts if p['PartNo'] != part['PartNo']]
+#             elif '$push' in updated_parts:
+#                 # Add objects to parts array
+#                 for part in updated_parts['$push']['cities.$.table.parts']:
+#                     parts.append(part)
+
+#             collection.update_one(
+#                 {'locationName': location_name, 'cities.cityName': city_name},
+#                 {'$set': {'cities.$.table.parts': parts}}
+#             )
+
+#             return jsonify({'message': 'Parts updated successfully'})
+#         else:
+#             return jsonify({'message': 'City not found in the specified location'}), 404
+#     else:
+#         return jsonify({'message': 'Location not found'}), 404
+
+@app.route('/locations/<location_name>/cities/<city_name>/parts/<part_no>', methods=['DELETE'])
+def delete_part(location_name, city_name, part_no):
+    location = collection.find_one({'locationName': location_name})
     if location:
-        cities = location['cities']
-        city_to_update = next((city for city in cities if city['cityName'] == city_name), None)
-
-        if city_to_update:
-            parts = city_to_update['table']['parts']
-
-            if '$pull' in updated_parts:
-                # Delete objects from parts array
-                for part in updated_parts['$pull']['cities.$.table.parts']:
-                    parts = [p for p in parts if p['PartNo'] != part['PartNo']]
-            elif '$push' in updated_parts:
-                # Add objects to parts array
-                for part in updated_parts['$push']['cities.$.table.parts']:
-                    parts.append(part)
-
+        city = next((city for city in location['cities'] if city['cityName'] == city_name), None)
+        if city:
+            parts = city['table']['parts']
+            parts = [part for part in parts if part['PartNo'] != part_no]
+            city['table']['parts'] = parts
             collection.update_one(
                 {'locationName': location_name, 'cities.cityName': city_name},
-                {'$set': {'cities.$.table.parts': parts}}
+                {'$set': {'cities.$': city}}
             )
-
-            return jsonify({'message': 'Parts updated successfully'})
+            return jsonify({'message': 'Part deleted successfully'})
         else:
-            return jsonify({'message': 'City not found in the specified location'}), 404
+            return jsonify({'message': 'City not found'}), 404
     else:
         return jsonify({'message': 'Location not found'}), 404
 
@@ -234,9 +253,10 @@ def add_request():
         }
         reqCollection.insert_one(new_location)
     send_email(subject, sender, recipients, body)
+    
 
     return jsonify({'message': 'Request submitted successfully'})
 
 
 if __name__ == '__main__':
-    app.run(debug=True,port=5500)
+    app.run(debug=True)
