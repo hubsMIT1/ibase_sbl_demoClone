@@ -11,7 +11,7 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 
-app.config['MAIL_USERNAME'] = 'mitashiv0101@gmail.com'
+app.config['MAIL_USERNAME'] = 'mitashiv0101@gmai.com'
 app.config['MAIL_PASSWORD'] = 'lbihwrsjjaznrbft'
 
 # Connect to MongoDB
@@ -35,9 +35,7 @@ def send_email(subject, sender, recipients, body):
 
 @app.route('/locations', methods=['GET'])
 def get_locations():
-    # # Retrieve all locations from the database
-    # locations = list(collection.find())
-    # return jsonify(locations)
+   
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
     skip = (page - 1) * limit
@@ -88,7 +86,7 @@ def add_city(location_name):
     else:
         return jsonify({'message': 'Error adding city'}), 500
 
-@app.route('/locations/<location_name>/cities/<city_name>', methods=['PUT'])
+@app.route('/locations/<location_name>/cities_part/<city_name>', methods=['PUT'])
 def update_city(location_name, city_name):
     # Update a specific city in a specific location
     updated_city = request.get_json()
@@ -99,7 +97,7 @@ def update_city(location_name, city_name):
         city_to_update = next((city for city in cities if city['cityName'] == city_name), None)
 
         if city_to_update:
-            city_to_update['table']['parts'].append(updated_city['table']['parts'][0])
+            city_to_update['table']['parts'].append(updated_city)
             collection.update_one(
                 {'locationName': location_name, 'cities.cityName': city_name},
                 {'$set': {'cities': cities}}
@@ -111,7 +109,7 @@ def update_city(location_name, city_name):
             body = f'The city {city_name} in location {location_name} has been updated.'
             send_email(subject, sender, recipients, body)
 
-            if int(updated_city['table']['parts'][0]['Quantity']) < int(updated_city['table']['parts'][0]['Min Quantity']):
+            if int(updated_city['Quantity']) < int(updated_city['Min Quantity']):
                 # Send an email if the quantity falls below the minimum
                 subject = f"Low Quantity Alert: {location_name} - {city_name}"
                 body = f"The quantity of {city_name} in {location_name} has fallen below the minimum threshold."
@@ -123,38 +121,38 @@ def update_city(location_name, city_name):
     else:
         return jsonify({'message': 'Location not found'}), 404
 
-# @app.route('/locations/<location_name>/cities/<city_name>', methods=['PATCH'])
-# def update_parts(location_name, city_name):
-#     updated_parts = request.get_json()
+@app.route('/locations/<location_name>/cities/<city_name>/parts/<part_no>', methods=['POST'])
+def edit(location_name,city_name,part_no):
+   
+    parts = request.get_json()
+    print(part_no,parts,parts["Description"])
 
-#     location = collection.find_one({'locationName': location_name, 'cities.cityName': city_name})
+    try:
+        # Update the data in MongoDB
+        result = collection.update_one(
+            {"locationName": location_name, "cities.cityName": city_name, "cities.table.parts.PartNo": part_no},
+            {"$set": {
+                "cities.$[city].table.parts.$[part].Description": parts["Description"],
+                "cities.$[city].table.parts.$[part].PartNo": parts["PartNo"],
+                "cities.$[city].table.parts.$[part].Quantity": parts["Quantity"],
+                "cities.$[city].table.parts.$[part].Min Quantity": parts["Min Quantity"],
+                "cities.$[city].table.parts.$[part].Tag": parts["Tag"]
+                      }},
+            array_filters=[{"city.cityName": city_name}, {"part.PartNo": part_no}]
+        )
 
-#     if location:
-#         cities = location['cities']
-#         city_to_update = next((city for city in cities if city['cityName'] == city_name), None)
-
-#         if city_to_update:
-#             parts = city_to_update['table']['parts']
-
-#             if '$pull' in updated_parts:
-#                 # Delete objects from parts array
-#                 for part in updated_parts['$pull']['cities.$.table.parts']:
-#                     parts = [p for p in parts if p['PartNo'] != part['PartNo']]
-#             elif '$push' in updated_parts:
-#                 # Add objects to parts array
-#                 for part in updated_parts['$push']['cities.$.table.parts']:
-#                     parts.append(part)
-
-#             collection.update_one(
-#                 {'locationName': location_name, 'cities.cityName': city_name},
-#                 {'$set': {'cities.$.table.parts': parts}}
-#             )
-
-#             return jsonify({'message': 'Parts updated successfully'})
-#         else:
-#             return jsonify({'message': 'City not found in the specified location'}), 404
-#     else:
-#         return jsonify({'message': 'Location not found'}), 404
+        if result.matched_count == 0:
+            raise Exception("No matching data found.")
+        subject = 'City/Location Update'
+        sender = 'mitashiv0101@gmail.com'
+        recipients = ['shivaya020@gmail.com','anshunitt8@gmail.com']  # Add recipient email addresses
+        body = f'{part_no} PartNo of The city  {city_name} in location {location_name} has been updated.'
+        send_email(subject, sender, recipients, body)
+         
+        return 'Data updated successfully'
+    except Exception as e:
+        error_message = str(e)
+        return jsonify(error=error_message)
 
 @app.route('/locations/<location_name>/cities/<city_name>/parts/<part_no>', methods=['DELETE'])
 def delete_part(location_name, city_name, part_no):
@@ -179,30 +177,21 @@ def delete_part(location_name, city_name, part_no):
 
 @app.route('/requests/<location_name>/cities/<city_name>', methods=['GET'])
 def get_request_data(location_name, city_name):
-    form_data = reqCollection.find({
-        'locationName': location_name,
-        'cities.cityName': city_name
-    }, {'_id': 0})
-    
-    #  Convert the form data cursor to a list
-    form_data_list = list(form_data)
-    print(form_data_list)
-    
-    return jsonify(form_data_list)
-    # print(location)
-    # if location:
-    #     city = next((city for city in location['cities'] if city['cityName'] == city_name), None)
-    #     if city:
-    #         location['_id'] = str(location['_id'])
-    #         print(location)
-    #         return jsonify(location)
-    #     else:
-    #         print(f"City '{city_name}' not found")
-    #         return jsonify({'message': 'City not found'}), 404
-    # else:
-    #     print(f"Location '{location_name}' not found")
-    #     return jsonify({'message': 'Location not found'}), 404
-
+    location = reqCollection.find_one({'locationName': location_name})
+    print(location)
+    if location:
+        city = next((city for city in location['cities'] if city['cityName'] == city_name), None)
+        if city:
+            location['_id'] = str(location['_id'])
+            print(location)
+            return jsonify(location)
+        else:
+            print(f"City '{city_name}' not found")
+            return jsonify({'message': 'City not found'}), 404
+    else:
+        print(f"Location '{location_name}' not found")
+        return jsonify({'message': 'Location not found'}), 404
+ 
 @app.route('/requests', methods=['POST'])
 def add_request():
     request_data = request.get_json()
@@ -257,6 +246,3 @@ def add_request():
 
     return jsonify({'message': 'Request submitted successfully'})
 
-
-if __name__ == '__main__':
-    app.run(debug=True)
