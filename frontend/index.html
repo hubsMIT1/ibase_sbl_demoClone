@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>City Selector</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <div class="header">
+      <div class="header-logo">
+        <i class="fas fa-bars menu-icon"></i>
+        COIL TUBING
+      </div>
+      <div class="addLocationbtn" onclick="showForm()" title="Add Location">
+      </div>
+     
+    </div>
+  <!-- <div class="select-option">
+    
+  </div> -->
+  <div class="select-option">
+    <select id="locationSelect">
+        <!-- <option disabled selected>Select a location</option> -->
+        <option>Select a location</option>
+      </select>
+    
+    <div class="selectIcon">
+      <svg focusable="false" viewBox="0 0 104 128" width="25" height="35" class="icon">
+        <path d="m2e1 95a9 9 0 0 1 -9 9 9 9 0 0 1 -9 -9 9 9 0 0 1 9 -9 9 9 0 0 1 9 9zm0-3e1a9 9 0 0 1 -9 9 9 9 0 0 1 -9 -9 9 9 0 0 1 9 -9 9 9 0 0 1 9 9zm0-3e1a9 9 0 0 1 -9 9 9 9 0 0 1 -9 -9 9 9 0 0 1 9 -9 9 9 0 0 1 9 9zm14 55h68v1e1h-68zm0-3e1h68v1e1h-68zm0-3e1h68v1e1h-68z"></path>
+      </svg>
+    </div>
+  </div>
+  <div id="popup" class="popup-background" style="display: none;">
+    <div class="form-container">
+      <h2>Add New Location</h2>
+      <form id="myForm" onsubmit="handleSubmit(event)">
+        <label for="locationName">Location Name:</label>
+      <input type="text" id="locationName" required>
+      <label for="cityName">City Name:</label>
+      <input type="text" id="cityName" required>
+
+        <label for="partNo">Part Number:</label>
+        <input type="text" id="partNo" required>
+        
+        <label for="description">Description:</label>
+        <input type="text" id="description" required>
+        
+        <label for="minQuantity">Min Quantity:</label>
+        <input type="text" id="minQuantity" required>
+        
+        <label for="quantity">Quantity:</label>
+        <input type="text" id="quantity" required>
+        
+        <label for="tag">Tag:</label>
+        <input type="text" id="tag" required>
+
+        <button type="submit" class="submit-button">Submit</button>
+        <button type="button" class="cancel-button" onclick="hideForm()">Cancel</button>
+      </form>
+    </div>
+  </div>
+  <div class="city-section">
+  </div>
+
+  <div id="popup-city" class="popup-background" style="display: none;">
+    <div class="form-container">
+      <h2>Add New City</h2>
+      <form id="myCityForm">
+       
+      <label for="cityName">City Name:</label>
+      <input type="text" id="cityName-city" required>
+
+        <label for="partNo">Part Number:</label>
+        <input type="text" id="partNo-city" required>
+        
+        <label for="description">Description:</label>
+        <input type="text" id="description-city" required>
+        
+        <label for="minQuantity">Min Quantity:</label>
+        <input type="text" id="minQuantity-city" required>
+        
+        <label for="quantity">Quantity:</label>
+        <input type="text" id="quantity-city" required>
+        
+        <label for="tag">Tag:</label>
+        <input type="text" id="tag-city" required>
+
+        <button id="citySubmitbtn" class="submit-button">Submit</button>
+        <button  id="cityCancelbtn" type="button" class="cancel-button" >Cancel</button>
+      </form>
+    </div>
+  </div>
+  <div class="cds-containers">
+    
+  <div class="btn-section"> 
+   
+      
+    </div>
+    <div class="city-detail-section"></div>
+     
+  <div id="popupForm" class="popup-form">
+    <form id="editForm" class="edit-form">
+      <h2>Edit City Details</h2>
+      
+      <div class="form-group">
+        <label for="description">Description</label>
+        <input type="text" id="Description" name="Description">
+      </div>
+      <div class="form-group">
+        <label for="minQuantity">Min Quantity</label>
+        <input type="number" id="MinQuantity" name="MinQuantity">
+      </div>
+      <div class="form-group">
+        <label for="portNo">Part No</label>
+        <input type="text" id="PartNo" name="PartNo" readonly>
+      </div>
+      <div class="form-group">
+        <label for="quantity">Quantity</label>
+        <input type="number" id="Quantity" name="Quantity">
+      </div>
+      <div class="form-group">
+        <label for="tags">Tags</label>
+        <input type="text" id="Tag" name="Tag">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="update-button">Update</button>
+        <button type="button" id="editCancelbtn" class="cancel-button">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+
+  <div id="popupContainer">
+    <div id="popupContent">
+      <h2>Add New Part</h2>
+      
+      <label for="partNo">Part No:</label>
+      <input type="text" id="insertpartNo" required>
+      <label for="description">Description:</label>
+      <textarea id="insertdescription" required></textarea>
+      <label for="minQuantity">Min Quantity:</label>
+      <input type="text" id="insertminQuantity" required>
+      <label for="quantity">Quantity:</label>
+      <input type="text" id="insertquantity" required>
+      <label for="tag">Tag:</label>
+      <input type="text" id="inserttag" required>
+      <div id="buttonContainer">
+        <button id="insertsubmitButton" class="submit-button">Submit</button>
+        <button id="insertcancelButton" class="cancel-button">Cancel</button>
+      </div>
+    </div>
+  </div>
+  
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+  <script src="main.js">
+    
+  </script>
+</body>
+</html>
