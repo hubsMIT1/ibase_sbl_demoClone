@@ -5,6 +5,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
   <link rel="stylesheet" href="main.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  
+
 </head>
 <body>
     <div class="header">
@@ -40,8 +42,10 @@
       <label for="cityName">City Name:</label>
       <input type="text" id="cityName" required>
 
-        <label for="partNo">Part Number:</label>
+        <label for="partNo">Supplier Part Number:</label>
         <input type="text" id="partNo" required>
+        <label for="partNo">Buyer Part Number:</label>
+        <input type="text" id="buyerPartNo" required>
         
         <label for="description">Description:</label>
         <input type="text" id="description" required>
@@ -71,8 +75,11 @@
       <label for="cityName">City Name:</label>
       <input type="text" id="cityName-city" required>
 
-        <label for="partNo">Part Number:</label>
+        <label for="partNo">Supplier Part Number:</label>
         <input type="text" id="partNo-city" required>
+
+        <label for="partNo">Buyer Part Number:</label>
+        <input type="text" id="buyerpartNo-city" required>
         
         <label for="description">Description:</label>
         <input type="text" id="description-city" required>
@@ -104,6 +111,10 @@
       <h2>Edit City Details</h2>
       
       <div class="form-group">
+        <div class="form-group">
+          <label for="BuyerportNo">Buyer Part No</label>
+          <input type="text" id="BuyerPartNo" name="BuyerPartNo" readonly>
+        </div>
         <label for="description">Description</label>
         <input type="text" id="Description" name="Description">
       </div>
@@ -112,7 +123,7 @@
         <input type="number" id="MinQuantity" name="MinQuantity">
       </div>
       <div class="form-group">
-        <label for="portNo">Part No</label>
+        <label for="portNo">Supplier Part No</label>
         <input type="text" id="PartNo" name="PartNo" readonly>
       </div>
       <div class="form-group">
@@ -135,8 +146,10 @@
     <div id="popupContent">
       <h2>Add New Part</h2>
       
-      <label for="partNo">Part No:</label>
+      <label for="partNo">Supplier Part No:</label>
       <input type="text" id="insertpartNo" required>
+      <label for="buyerpartNo">Buyer Part No:</label>
+      <input type="text" id="insertbuyerpartNo" required>
       <label for="description">Description:</label>
       <textarea id="insertdescription" required></textarea>
       <label for="minQuantity">Min Quantity:</label>

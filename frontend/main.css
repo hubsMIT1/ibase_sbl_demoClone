@@ -598,6 +598,13 @@
         transform: rotate(180deg);
        
       }
+      .verifyClr{
+        color:green;
+        cursor: pointer;
+      }
+      .reqVerify{
+        background-color: red;
+      }
 
       .css-button {
         text-align: center;
@@ -620,9 +627,35 @@
       .css-button:hover {
         background: linear-gradient(180deg, #3d3dc5 10%, #0000ff 100%);
       }
+      .css-dlt-button{
+        color: #ffffff;
+        font-size: 16px;
+        border-radius: 5px;
+        border: solid 0px #c81414;
+        text-shadow: 1px 1px 0px #a3a3a3;
+        box-shadow: 0px 10px 14px -7px #616174;
+        text-decoration: none;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        font-family: Arial;
+        background: linear-gradient(180deg, #ff0000 10%, #c81414 100%);
+        display: inline-flex;
+        align-items: center;
+        padding: 0;
+      }
+      .css-dlt-button:hover{
+        background: linear-gradient(180deg, #c81414 10%, #ff0000 100%);
+      }
+
       .css-button-text {
         position: relative;
         padding: 10px 18px;
+      }
+      .css-button-text > span {
+        position: relative;
+        display: inline-block;
+        left: 0px;
       }
       .css-button-icon {
         position: relative;
@@ -635,6 +668,11 @@
         display: inline-block;
         vertical-align: middle;
         font-size: 23px;
+      }
+      .btnscn{
+        display: flex;
+        justify-content: center;
+        gap:20%;
       }
       .ctname {
 

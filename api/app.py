@@ -84,7 +84,28 @@ def add_city(location_name):
     
         return jsonify({'message': 'City added successfully'})
     else:
-        return jsonify({'message': 'Error adding city'}), 500
+        return jsonify({'message': 'Error adding city'}), 500   
+   
+
+   
+@app.route('/locations/<location_name>', methods=['DELETE'])
+def delete_location(location_name):
+    # Delete a location
+    result = collection.delete_one({'locationName': location_name})
+    if result.deleted_count > 0:
+        return jsonify({'message': 'Location deleted successfully'})
+    else:
+        return jsonify({'message': 'Error deleting location'}), 500
+
+@app.route('/locations/<location_name>/cities/<city_name>', methods=['DELETE'])
+
+def delete_city(location_name, city_name):
+    # Delete a city from a specific location
+    result = collection.update_one({'locationName': location_name}, {'$pull': {'cities': {'cityName': city_name}}})
+    if result.modified_count > 0:
+        return jsonify({'message': 'City deleted successfully'})
+    else:
+        return jsonify({'message': 'Error deleting city'}), 500
 
 @app.route('/locations/<location_name>/cities_part/<city_name>', methods=['PUT'])
 def update_city(location_name, city_name):
@@ -120,6 +141,7 @@ def update_city(location_name, city_name):
             return jsonify({'message': 'City not found in the specified location'}), 404
     else:
         return jsonify({'message': 'Location not found'}), 404
+
 
 @app.route('/locations/<location_name>/cities/<city_name>/parts/<part_no>', methods=['POST'])
 def edit(location_name,city_name,part_no):
@@ -246,3 +268,44 @@ def add_request():
 
     return jsonify({'message': 'Request submitted successfully'})
 
+@app.route('/requests/<location_name>/<city_name>/update/<id>', methods=['PUT'])
+def update_verify(location_name, city_name,id):
+    request_data = request.get_json()
+    # port_no = request_data.get('portNo')
+    verify = request_data.get('verify')
+    print(verify,id)
+
+    result = reqCollection.update_one(
+        {'locationName': location_name, 'cities.cityName': city_name, 'cities.formData.id': id},
+        {'$set': {'cities.$.formData.$[form].verify': verify}},
+        array_filters=[{'form.id': id}]
+    )
+
+    if result.modified_count > 0:
+        return jsonify({'message': 'Description updated successfully'})
+    else:
+        return jsonify({'message': 'Error updating description'}), 500
+@app.route('/requests/delete', methods=['DELETE'])
+def delete_request_data():
+    request_data = request.get_json()
+    # port_no = request_data.get('portN
+    location_name = request_data.get('location')
+    city_name = request_data.get('cityName')
+    print(location_name,city_name)
+    location = reqCollection.find_one({'locationName': location_name})
+    if location:
+        if city_name:
+            city = next((city for city in location['cities'] if city['cityName'] == city_name), None)
+            if city:
+                location['cities'].remove(city)
+                reqCollection.update_one({'locationName': location_name}, {'$set': {'cities': location['cities']}})
+                return jsonify({'message': 'City deleted successfully'})
+            else:
+                return jsonify({'message': 'City not found'}), 404
+        else:
+            reqCollection.delete_one({'locationName': location_name})
+            return jsonify({'message': 'Location deleted successfully'})
+    else:
+        return jsonify({'message': 'Location not found'}), 404
+
+app.run(debug=True)

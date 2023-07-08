@@ -16,8 +16,57 @@ window.onload = getLocations()
 
 
 // Function to send a POST request to create a new location
+async function deleteRequest(locationName, cityName) {
+  // Send a DELETE request to the server
+  delData = {
+    location: locationName,
+    cityName: cityName
+  }
+
+  await fetch(`https://coil-tubing-sheet-api.onrender.com/requests/delete`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(delData)
+  })
+    .then(response => {
+      if (response.ok) {
+        //('Deletion successful');
+        location.reload();
+        // Handle successful deletion, if needed
+      } else {
+        //('Deletion failed');
+        // Handle deletion failure, if needed
+      }
+    })
+    .catch(error => {
+      //('Deletion error:', error);
+      // Handle deletion error, if needed
+    });
+}
+const delLocation = async (locationName) => {
+
+  await fetch(`https://coil-tubing-sheet-api.onrender.com/locations/${locationName}`, {
+    method: 'DELETE'
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Handle success message
+      deleteRequest(locationName, null)
+      //(data.message);
+
+      // Refresh or update the UI as needed
+    })
+    .catch(error => {
+      // Handle error
+      console.error('Error:', error);
+      // Display error message to the user
+    });
+}
+
 const addLocation = async (locationData) => {
- 
+
 
   try {
     const response = await fetch('https://coil-tubing-sheet-api.onrender.com/locations', {
@@ -30,7 +79,7 @@ const addLocation = async (locationData) => {
 
     if (response.ok) {
       const result = await response.json();
-      console.log(result.message); // Location added successfully
+      //(result.message); // Location added successfully
     } else {
       throw new Error('Error adding location');
     }
@@ -40,8 +89,8 @@ const addLocation = async (locationData) => {
 };
 
 // Function to send a POST request to add a new city to a specific location
-const addCity = async (locationName,cityData) => {
-  
+const addCity = async (locationName, cityData) => {
+
   try {
     const response = await fetch(`https://coil-tubing-sheet-api.onrender.com/locations/${locationName}/cities`, {
       method: 'POST',
@@ -53,7 +102,7 @@ const addCity = async (locationName,cityData) => {
 
     if (response.ok) {
       const result = await response.json();
-      console.log(result.message); // City added successfully
+      //(result.message); // City added successfully
     } else {
       throw new Error('Error adding city');
     }
@@ -61,6 +110,25 @@ const addCity = async (locationName,cityData) => {
     // console.error(error);
   }
 };
+function deleteCity(locationName, cityName) {
+  fetch(`https://coil-tubing-sheet-api.onrender.com/locations/${locationName}/cities/${cityName}`, {
+    method: 'DELETE'
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Handle success message
+      deleteRequest(locationName, cityName)
+      //(data.message);
+      // location.reload();
+      // Refresh or update the UI as needed
+    })
+    .catch(error => {
+      // Handle error
+      console.error('Error:', error);
+      // Display error message to the user
+    });
+}
+
 
 // Usage examples
 
@@ -168,7 +236,7 @@ const getRequestData = async (locationName, cityName, trackDetailSection, check,
     if (response.ok) {
       const formData = await response.json();
       if (formData) {
-        renderTableSection(trackDetailSection, check, formData, cities);
+        renderTableSection(trackDetailSection, check, formData, cities, locationName);
       }
     } else {
       throw new Error('Data not found');
@@ -179,6 +247,34 @@ const getRequestData = async (locationName, cityName, trackDetailSection, check,
   }
 
 
+}
+
+
+function updateReqVerify(locationName, cityName, ids, newVerify) {
+  const requestData = {
+
+    verify: newVerify
+  };
+  //(requestData,ids)
+
+  fetch(`https://coil-tubing-sheet-api.onrender.com/requests/${locationName}/${cityName}/update/${ids}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(requestData)
+  })
+    .then(response => response.json())
+    .then(data => {
+      // Handle success message
+      //(data.message);
+      // Refresh or update the UI as needed
+    })
+    .catch(error => {
+      // Handle error
+      console.error('Error:', error);
+      // Display error message to the user
+    });
 }
 
 function processData(formData) {
@@ -207,6 +303,7 @@ function handleSubmit(event) {
   const ctName = document.getElementById("cityName").value;
 
   const partNo = document.getElementById("partNo").value;
+  const buyerPartNo = document.getElementById("buyerPartNo").value;
   const description = document.getElementById("description").value;
   const minQuantity = document.getElementById("minQuantity").value;
   const quantity = document.getElementById("quantity").value;
@@ -222,6 +319,7 @@ function handleSubmit(event) {
           parts: [
             {
               PartNo: partNo,
+              "Buyer PartNo": buyerPartNo,
               Description: description,
               "Min Quantity": minQuantity,
               Quantity: quantity,
@@ -233,28 +331,28 @@ function handleSubmit(event) {
     ]
   };
 
-  if(locaName && ctName && partNo && description && minQuantity && quantity && tag){
-    console.log(data);
+  if (locaName && ctName && partNo && description && minQuantity && quantity && tag && buyerPartNo) {
+    //(data);
 
-  // Reset the form
-  addLocation(data)
-  document.getElementById("myForm").reset();
+    // Reset the form
+    addLocation(data)
+    document.getElementById("myForm").reset();
 
-  // Hide the form
-  hideForm();
+    // Hide the form
+    hideForm();
   }
   else {
     alert("Fill all the details")
   }
 
   // Display the data
-  
+
 }
 
 
-function handleCitySubmit(event){
+function handleCitySubmit(event) {
   event.preventDefault()
-   CitySubmit(event);
+  CitySubmit(event);
 }
 function selection(data) {
   data.forEach((location) => {
@@ -286,7 +384,7 @@ function renderCitySection(cities, locationName) {
     cityBox.classList.add("city-box");
     cityBox.style.backgroundImage = `url(city1.jpeg)`;
     // const addCityBtn = document.createElement('link')
-   
+
 
     // <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     const cityName = document.createElement("p");
@@ -295,40 +393,71 @@ function renderCitySection(cities, locationName) {
 
     cityBox.appendChild(cityName);
     csb.appendChild(cityBox)
- 
+
     // Event listener for city click
     cityBox.addEventListener("click", () => {
       renderButtonCDS(city.table.parts[0], city, locationName, city.table.parts)
     });
   });
   citySection.appendChild(csb);
+  var btnscn = document.createElement('div');
+  btnscn.className = 'btnscn';
   var addCityBtn = document.createElement('button');
   addCityBtn.type = 'button';
   addCityBtn.className = 'css-button';
-  
+
   // Create the icon element
   var icon = document.createElement('i');
   icon.className = 'fa fa-plus-circle';
-  
+
   // Create the icon container element
   var iconContainer = document.createElement('span');
   iconContainer.className = 'css-button-icon';
   iconContainer.appendChild(icon);
-  
+
   // Create the text container element
   var textContainer = document.createElement('span');
   textContainer.className = 'css-button-text';
   textContainer.innerHTML = '<span>Add New City</span>';
-  
+
   // Append the icon container and text container to the button element
   addCityBtn.appendChild(iconContainer);
   addCityBtn.appendChild(textContainer);
-  citySection.appendChild(addCityBtn)
 
-  addCityBtn.addEventListener(('click'),()=>{
+  var deleteLocation = document.createElement('button');
+  deleteLocation.type = 'button';
+  deleteLocation.className = 'css-dlt-button';
+
+  // Create the icon element
+  var deleteicon = document.createElement('i');
+  // deleteicon.innerHTML = "X"
+  deleteicon.className = 'fa fa-times-circle';
+
+  // Create the icon container element
+  var dlticonContainer = document.createElement('span');
+  dlticonContainer.className = 'css-button-icon';
+  dlticonContainer.appendChild(deleteicon);
+
+  // Create the text container element
+  var dlttextContainer = document.createElement('span');
+  dlttextContainer.className = 'css-button-text';
+  dlttextContainer.innerHTML = `<span>Delete location ${locationName}</span>`;
+
+  // Append the icon container and text container to the button element
+  deleteLocation.appendChild(dlticonContainer);
+  deleteLocation.appendChild(dlttextContainer);
+  btnscn.appendChild(addCityBtn)
+  btnscn.appendChild(deleteLocation)
+  citySection.appendChild(btnscn)
+
+
+  addCityBtn.addEventListener(('click'), () => {
     showCityForm()
   })
-  const cityForm  =  document.getElementById("popup-city")
+  deleteLocation.addEventListener('click', () => {
+    delLocation(locationName)
+  })
+  const cityForm = document.getElementById("popup-city")
 
   function showCityForm() {
     cityForm.style.display = "flex";
@@ -336,89 +465,68 @@ function renderCitySection(cities, locationName) {
   function hideCityForm() {
     cityForm.style.display = "none";
   }
-  
-submitCitybtn = document.getElementById('citySubmitbtn');
-cancelCitybtn = document.getElementById('cityCancelbtn')
+
+  submitCitybtn = document.getElementById('citySubmitbtn');
+  cancelCitybtn = document.getElementById('cityCancelbtn')
 
 
-submitCitybtn.addEventListener('click', function (event) {
-  event.preventDefault();
-  
-  // Get input field values
-  
-  const ctName = document.getElementById("cityName-city").value;
+  submitCitybtn.addEventListener('click', function (event) {
+    event.preventDefault();
 
-  const partNo = document.getElementById("partNo-city").value;
-  const description = document.getElementById("description-city").value;
-  const minQuantity = document.getElementById("minQuantity-city").value;
-  const quantity = document.getElementById("quantity-city").value;
-  const tag = document.getElementById("tag-city").value;
+    // Get input field values
 
-  // Create data object
-  const data = {
-        cityName: ctName,
-        table: {
-          parts: [
-            {
-              PartNo: partNo,
-              Description: description,
-              "Min Quantity": minQuantity,
-              Quantity: quantity,
-              Tag: tag
-            }
-          ]
-        }
+    const ctName = document.getElementById("cityName-city").value;
+
+    const partNo = document.getElementById("partNo-city").value;
+    const buyerPart = document.getElementById("buyerpartNo-city").value;
+
+    const description = document.getElementById("description-city").value;
+    const minQuantity = document.getElementById("minQuantity-city").value;
+    const quantity = document.getElementById("quantity-city").value;
+    const tag = document.getElementById("tag-city").value;
+
+    // Create data object
+    const data = {
+      cityName: ctName,
+      table: {
+        parts: [
+          {
+            PartNo: partNo,
+            "Buyer PartNo": buyerPart,
+            Description: description,
+            "Min Quantity": minQuantity,
+            Quantity: quantity,
+            Tag: tag
+          }
+        ]
+      }
     }
-    
 
 
-  // Display the data
-  console.log(data);
 
- 
+    // Display the data
+    //(data);
 
-  if (partNo && description && minQuantity && quantity && tag) {
-    // addNewPart(locationName, cities.cityName, formData);
-    // cities.table.parts.push(formData)
-    addCity(locationName,data);
-    document.getElementById("myCityForm").reset();
-    // document.getElementById('insertpartNo').value = ""
-    // document.getElementById('insertdescription').value = ""
-    // document.getElementById('insertminQuantity').value = ""
-    // document.getElementById('insertquantity').value = ""
-    // document.getElementById('inserttag').value = ""
-    // closePopup();
-    hideCityForm();
-    // check["checkspare"] = false
-    // renderCityDetailSection(city, cityDetailSection, check, cities, reqformDetailSection, locationName, parts)
-  }
-  else alert("Fill all the fields")
 
-});
 
-cancelCitybtn.addEventListener("click",()=>{
-  hideCityForm()
-})
+    if (partNo && description && minQuantity && quantity && tag && buyerPart) {
+
+      addCity(locationName, data);
+      document.getElementById("myCityForm").reset();
+
+      hideCityForm();
+      // check["checkspare"] = false
+      // renderCityDetailSection(city, cityDetailSection, check, cities, reqformDetailSection, locationName, parts)
+    }
+    else alert("Fill all the fields")
+
+  });
+
+  cancelCitybtn.addEventListener("click", () => {
+    hideCityForm()
+  })
 
 }
-// cancelButton.addEventListener('click', closePopup);
-// popupContainer.addEventListener('click', function (event) {
-//   if (event.target === popupContainer) {
-
-//     closePopup();
-//   }
-
-// });
-
-
-// insertBtn.addEventListener("click", () => {
-//   openPopup();
-
-// })
-
-
-
-
 
 // Function to render city detail section
 function renderButtonCDS(city, cities, locationName, parts) {
@@ -488,13 +596,10 @@ function renderButtonCDS(city, cities, locationName, parts) {
 }
 
 // Function to render table section
-function renderTableSection(cityDetailSection, check, requestData, cities) {
+function renderTableSection(cityDetailSection, check, requestData, cities, locationName) {
   if (check["checktrack"]) { check["checktrack"] = false; cityDetailSection.innerHTML = ""; return "" }
   check["checktrack"] = true;
   cityDetailSection.innerHTML = "";
-
-
-
 
   const tableSection = document.createElement("div");
   tableSection.classList.add("table-section");
@@ -507,9 +612,12 @@ function renderTableSection(cityDetailSection, check, requestData, cities) {
 
   // Create table header row
   const headerRow = document.createElement("tr");
+  const dateHeader = document.createElement("th");
+  dateHeader.textContent = "Date";
 
   const portHeader = document.createElement("th");
-  portHeader.textContent = "PartNo";
+  portHeader.textContent = "Supplier PartNo";
+
   const descHeader = document.createElement("th");
   descHeader.textContent = "Description";
 
@@ -525,18 +633,52 @@ function renderTableSection(cityDetailSection, check, requestData, cities) {
 
   const purposeHeader = document.createElement("th");
   purposeHeader.textContent = "Purpose";
+
+  const verifyHeader = document.createElement("th");
+  verifyHeader.textContent = "Verify";
+
+  headerRow.appendChild(dateHeader);
   headerRow.appendChild(portHeader);
   headerRow.appendChild(descHeader);
   headerRow.appendChild(nameHeader);
   headerRow.appendChild(emailHeader);
   headerRow.appendChild(quantityHeader);
   headerRow.appendChild(purposeHeader);
+  headerRow.appendChild(verifyHeader);
+
 
 
   thead.appendChild(headerRow);
+
   table.appendChild(thead);
   table.appendChild(tbody);
 
+  function verfiyFxn(button, ver, data) {
+    var row = button.parentNode.parentNode;
+    var cells = row.getElementsByTagName("td");
+
+    // //();
+
+    const buttonId = ver ? cells[cells.length - 1].getElementsByTagName("button")[0].id : cells[cells.length - 1].getElementsByTagName("span")[0].id;
+    //     let ver = true;
+    //     //(buttonId)
+    updateReqVerify(locationName, cities.cityName, buttonId, ver);
+
+    requestData.cities.forEach((city) => {
+      if (city.cityName === cities.cityName) {
+        city.formData.forEach((formData) => {
+
+          if (buttonId === formData.id) {
+            formData.verify = ver;
+          }
+        });
+      }
+    });
+
+    check["checktrack"] = false;
+    renderTableSection(cityDetailSection, check, requestData, cities, locationName);
+
+  }
   // Iterate over the cities and create table rows
   if (requestData.cities) {
     const reqData = requestData?.cities.find(city => city.cityName === cities.cityName).formData
@@ -546,10 +688,15 @@ function renderTableSection(cityDetailSection, check, requestData, cities) {
 
       //location.cities.forEach((city) => {
       const row = document.createElement("tr");
+
       const portCell = document.createElement("td");
       portCell.textContent = data.PartNo;
       const descCell = document.createElement("td");
       descCell.textContent = data.desc;
+
+      const dateCell = document.createElement("td");
+      dateCell.textContent = data?.date;
+
 
       const nameCell = document.createElement("td");
       nameCell.textContent = data.name;
@@ -559,15 +706,44 @@ function renderTableSection(cityDetailSection, check, requestData, cities) {
 
       const quantityCell = document.createElement("td");
       quantityCell.textContent = data.quantity; // Add quantity data
+
       const purposeCell = document.createElement("td");
       purposeCell.textContent = data.purpose;
+      const verifyCell = document.createElement("td");
 
+      spanverify = document.createElement('span');
+      iverify = document.createElement('i');
+      spanverify.setAttribute("id", data?.id);
+
+      iverify.className = "fa fa-check-circle verifyClr"
+      iverify.title = "verified"
+      spanverify.appendChild(iverify);
+
+      btnverify = document.createElement('button');
+      btnverify.className = "reqVerify";
+      btnverify.textContent = "Pending";
+      btnverify.setAttribute("id", data?.id);
+      btnverify.title = "press to verify"
+      // `<span> <i class="fa fa-check-circle verifyClr"></i></span>`
+      //`<button class="reqVerify"> Pending </button>`
+      verifyCell.appendChild(data?.verify ? spanverify : btnverify);
+      //(data.verify)
+
+      btnverify.onclick = function () {
+        verfiyFxn(this, true, data);
+      };
+      spanverify.onclick = function () {
+        verfiyFxn(this, false, data);
+      };
+
+      row.appendChild(dateCell)
       row.appendChild(portCell);
       row.appendChild(descCell);
       row.appendChild(nameCell);
       row.appendChild(emailCell);
       row.appendChild(quantityCell);
       row.appendChild(purposeCell);
+      row.appendChild(verifyCell)
 
 
       tbody.appendChild(row);
@@ -598,35 +774,63 @@ function renderCityDetailSection(city, cityDetailSection, check, cities, reqform
   ctname.textContent = cities.cityName;
   ctname.classList.add('ctname')
 
+  const partbtnscn = document.createElement('div')
+  partbtnscn.className = 'btnscn'
   const insertBtn = document.createElement('button')
   insertBtn.type = 'button';
   insertBtn.className = 'css-button';
-  
+
   // Create the icon element
   var icon = document.createElement('i');
   icon.className = 'fa fa-plus-circle';
-  
+
   // Create the icon container element
   var iconContainer = document.createElement('span');
   iconContainer.className = 'css-button-icon';
   iconContainer.appendChild(icon);
-  
+
   // Create the text container element
   var textContainer = document.createElement('span');
   textContainer.className = 'css-button-text';
   textContainer.innerHTML = '<span>Add New Part</span>';
-  
+
   // Append the icon container and text container to the button element
   insertBtn.appendChild(iconContainer);
   insertBtn.appendChild(textContainer);
-  
+
+  const dltpartbtn = document.createElement('button')
+  dltpartbtn.type = 'button';
+  dltpartbtn.className = 'css-dlt-button';
+
+  // Create the icon element
+  var prtdlticon = document.createElement('i');
+  prtdlticon.className = 'fa fa-times-circle';
+
+  // Create the icon container element
+  var prtdlticonContainer = document.createElement('span');
+  prtdlticonContainer.className = 'css-button-icon';
+  prtdlticonContainer.appendChild(prtdlticon);
+
+  // Create the text container element
+  var partdlttextContainer = document.createElement('span');
+  partdlttextContainer.className = 'css-button-text';
+  partdlttextContainer.innerHTML = `<span>Delete city ${cities.cityName} </span`;
+
+  // Append the icon container and text container to the button element
+  dltpartbtn.appendChild(prtdlticonContainer);
+  dltpartbtn.appendChild(partdlttextContainer);
+
+
+
   insertBtnSection.classList.add("buttons", "insertBtn")
   insertBtnSection.appendChild(ctname)
 
-  insertBtnSection.appendChild(insertBtn)
+  partbtnscn.appendChild(insertBtn)
+  partbtnscn.appendChild(dltpartbtn)
+
+  insertBtnSection.appendChild(partbtnscn)
 
   cityDetailBox.appendChild(insertBtnSection)
-
 
   const popupContainer = document.getElementById('popupContainer');
   const popupContent = document.getElementById('popupContent');
@@ -645,6 +849,8 @@ function renderCityDetailSection(city, cityDetailSection, check, cities, reqform
     event.preventDefault();
 
     const partNo = document.getElementById('insertpartNo').value;
+    const buyerpart = document.getElementById('insertbuyerpartNo').value;
+
     const description = document.getElementById('insertdescription').value;
     const minQuantity = document.getElementById('insertminQuantity').value;
     const quantity = document.getElementById('insertquantity').value;
@@ -652,6 +858,7 @@ function renderCityDetailSection(city, cityDetailSection, check, cities, reqform
 
 
     const formData = {
+      "Buyer PartNo": buyerpart,
       "Description": description,
       "Min Quantity": minQuantity,
       "PartNo": partNo,
@@ -667,6 +874,7 @@ function renderCityDetailSection(city, cityDetailSection, check, cities, reqform
       cities.table.parts.push(formData)
 
       document.getElementById('insertpartNo').value = ""
+      document.getElementById('insertbuyerpartNo').value = ""
       document.getElementById('insertdescription').value = ""
       document.getElementById('insertminQuantity').value = ""
       document.getElementById('insertquantity').value = ""
@@ -692,6 +900,9 @@ function renderCityDetailSection(city, cityDetailSection, check, cities, reqform
   insertBtn.addEventListener("click", () => {
     openPopup();
 
+  })
+  dltpartbtn.addEventListener("click", () => {
+    deleteCity(locationName, cities.cityName);
   })
   const subcitybox = createDetailBox(city, cities, reqformDetailSection, locationName, parts)
   cityDetailBox.appendChild(subcitybox);
@@ -722,7 +933,7 @@ function createDetailBox(citi, cities, reqformDetailSection, locationName, parts
 
     if (citi.hasOwnProperty(prop)) {
       const header = document.createElement("th");
-      header.textContent = prop;
+      header.textContent = prop === "PartNo" ? "Supplier PartNo" : prop;
       headerRow.appendChild(header);
     }
 
@@ -830,13 +1041,14 @@ function createDetailBox(citi, cities, reqformDetailSection, locationName, parts
         //  = cells[i].innerHTML;
       }
       const updatePartData = {
-        "PartNo": rowData[2],
-        "Description": rowData[0],
-        "Min Quantity": rowData[1],
-        "Quantity": rowData[3],
-        "Tag": rowData[4]
+        "Buyer PartNo": rowData[0],
+        "PartNo": rowData[3],
+        "Description": rowData[1],
+        "Min Quantity": rowData[3],
+        "Quantity": rowData[4],
+        "Tag": rowData[5]
       }
-      if (rowData[2] && rowData[0] && rowData[1] && rowData[3] && rowData[4]) {
+      if (rowData[2] && rowData[0] && rowData[1] && rowData[3] && rowData[4] && rowData[5]) {
         //(updatePartData)
         updatePart(locationName, cities.cityName, rowData[2], updatePartData)
 
@@ -860,7 +1072,7 @@ function createDetailBox(citi, cities, reqformDetailSection, locationName, parts
     var cells = row.getElementsByTagName("td");
     // var row = button.parentNode.parentNode;
     var rowIndex = row.rowIndex - 1;
-    const partNo = cells[2].innerHTML;
+    const partNo = cells[3].innerHTML;
     row.parentNode.removeChild(row);
 
     // Remove part from the partsData array
@@ -872,10 +1084,15 @@ function createDetailBox(citi, cities, reqformDetailSection, locationName, parts
 
   table.appendChild(tbody);
   tableSection.appendChild(table);
-
   return tableSection;
 
+}
 
+function generateRandomId() {
+  const timestamp = Date.now().toString(); // Get the current timestamp as a string
+  const randomNumber = Math.floor(Math.random() * 10000); // Generate a random number between 0 and 9999
+  const randomId = timestamp + randomNumber.toString(); // Concatenate the timestamp and random number
+  return randomId;
 }
 
 function renderFormSection(city, cityDetailSection, locationName, cities) {
@@ -937,7 +1154,7 @@ function renderFormSection(city, cityDetailSection, locationName, cities) {
   btnContainer.appendChild(cancellButton);
   btnContainer.appendChild(saveButton);
   // btnContainer.appendChild(reqbtndiv)
-  
+
   formContainer.appendChild(btnContainer);
   cityDetailSection.appendChild(formContainer);
 
@@ -945,16 +1162,30 @@ function renderFormSection(city, cityDetailSection, locationName, cities) {
   cancellButton.addEventListener("click", () => {
     cityDetailSection.innerHTML = "";
   })
+  function formatDate(date) {
+    const options = { day: '2-digit', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString(undefined, options);
+  }
+
+  // Usage example
+  const today = new Date();
+  const formattedDate = formatDate(today);
+  //(formattedDate); // Output: "08 July 2023"
+
   // Event listener for save button
+  const ids = generateRandomId();
   saveButton.addEventListener("click", () => {
     if (nameInput.value && emailInput.value && quantityInput.value && purposeInput.value) {
       const formData = {
+        id: ids,
+        date: formattedDate,
         PartNo: city["PartNo"],
         desc: city["Description"],
         name: nameInput.value,
         email: emailInput.value,
         quantity: quantityInput.value,
-        purpose: purposeInput.value
+        purpose: purposeInput.value,
+        verify: false,
       };
 
       // Replace with the actual location name
