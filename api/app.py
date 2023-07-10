@@ -307,5 +307,3 @@ def delete_request_data():
             return jsonify({'message': 'Location deleted successfully'})
     else:
         return jsonify({'message': 'Location not found'}), 404
-
-app.run(debug=True)
