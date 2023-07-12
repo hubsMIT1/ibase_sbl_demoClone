@@ -180,7 +180,7 @@ function updatePart(locationName, cityName, partNo, partData) {
 
 
 function deletePart(locationName, cityName, partNo) {
-  const url = `https://coil-tubing-sheet-api.onrender.com/locations/${locationName}/cities/${cityName}/parts/${partNo}`;
+  const url = `https://coil-tubing-sheet-api.onrender.com/locations/delete/${locationName}/cities/${cityName}/parts/${partNo}`;
   //(locationName,cityName,partNo,"deletion")
   // Send the DELETE request
   fetch(url, {
@@ -418,7 +418,7 @@ function renderCitySection(cities, locationName) {
   // Create the text container element
   var textContainer = document.createElement('span');
   textContainer.className = 'css-button-text';
-  textContainer.innerHTML = '<span>Add New City</span>';
+  textContainer.innerHTML = '<span>Add New Project</span>';
 
   // Append the icon container and text container to the button element
   addCityBtn.appendChild(iconContainer);
@@ -814,7 +814,7 @@ function renderCityDetailSection(city, cityDetailSection, check, cities, reqform
   // Create the text container element
   var partdlttextContainer = document.createElement('span');
   partdlttextContainer.className = 'css-button-text';
-  partdlttextContainer.innerHTML = `<span>Delete city ${cities.cityName} </span`;
+  partdlttextContainer.innerHTML = `<span>Delete Project ${cities.cityName} </span`;
 
   // Append the icon container and text container to the button element
   dltpartbtn.appendChild(prtdlticonContainer);

@@ -176,7 +176,7 @@ def edit(location_name,city_name,part_no):
         error_message = str(e)
         return jsonify(error=error_message)
 
-@app.route('/locations/<location_name>/cities/<city_name>/parts/<part_no>', methods=['DELETE'])
+@app.route('/locations/delete/<location_name>/cities/<city_name>/parts/<part_no>', methods=['DELETE'])
 def delete_part(location_name, city_name, part_no):
     location = collection.find_one({'locationName': location_name})
     if location:
@@ -308,4 +308,3 @@ def delete_request_data():
     else:
         return jsonify({'message': 'Location not found'}), 404
 
-app.run(debug=True)
