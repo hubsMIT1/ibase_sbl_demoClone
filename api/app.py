@@ -170,6 +170,11 @@ def edit(location_name,city_name,part_no):
         recipients = ['shivaya020@gmail.com','anshunitt8@gmail.com']  # Add recipient email addresses
         body = f'{part_no} PartNo of The city  {city_name} in location {location_name} has been updated.'
         send_email(subject, sender, recipients, body)
+        if int(parts['Quantity']) < int(parts['Min Quantity']):
+                # Send an email if the quantity falls below the minimum
+            subject = f"Low Quantity Alert: {location_name} - {city_name}"
+            body = f"The quantity of {part_no} of {city_name} in {location_name} has fallen below the minimum threshold."
+            send_email(subject, sender, recipients, body)
          
         return 'Data updated successfully'
     except Exception as e:
