@@ -1040,17 +1040,19 @@ function createDetailBox(citi, cities, reqformDetailSection, locationName, parts
         parts[rowIndex][Object.keys(parts[rowIndex])[i]] = form[i].value;
         //  = cells[i].innerHTML;
       }
+      
       const updatePartData = {
         "Buyer PartNo": rowData[0],
-        "PartNo": rowData[2],
+        "PartNo": rowData[3],
         "Description": rowData[1],
-        "Min Quantity": rowData[3],
+        "Min Quantity": rowData[2],
         "Quantity": rowData[4],
         "Tag": rowData[5]
       }
       if (rowData[2] && rowData[0] && rowData[1] && rowData[3] && rowData[4] && rowData[5]) {
         //(updatePartData)
-        updatePart(locationName, cities.cityName, rowData[2], updatePartData)
+        // console.log(rowData[3]);
+        updatePart(locationName, cities.cityName, rowData[3], updatePartData)
 
         // updateCity(locationName,cities.cityName,updateCityData);
         popupForm.style.display = "none";
