@@ -1042,7 +1042,7 @@ function createDetailBox(citi, cities, reqformDetailSection, locationName, parts
       }
       const updatePartData = {
         "Buyer PartNo": rowData[0],
-        "PartNo": rowData[3],
+        "PartNo": rowData[2],
         "Description": rowData[1],
         "Min Quantity": rowData[3],
         "Quantity": rowData[4],
