@@ -112,7 +112,7 @@ def update_city(location_name, city_name):
     # Update a specific city in a specific location
     updated_city = request.get_json()
     print(location_name,city_name)
-    location = collection.find_one({'locationName': location_name, 'cities.cityName': city_name})
+    location = collection.find_one({'locationName': location_name})
     print(updated_city,location)
     if location:
         cities = location['cities']
