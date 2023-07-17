@@ -136,7 +136,7 @@ function deleteCity(locationName, cityName) {
 
 function addNewPart(locationName, cityName, updatedCity) {
 
-  fetch(`https://coil-tubing-sheet-api.onrender.com/locations/addpart/${locationName}/cities_part/${cityName}`, {
+  fetch(`https://coil-tubing-sheet-api.onrender.com/locations/addpart/${locationName}/cities/${cityName}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
