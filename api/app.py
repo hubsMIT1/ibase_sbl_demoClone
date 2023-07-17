@@ -107,14 +107,15 @@ def delete_city(location_name, city_name):
     else:
         return jsonify({'message': 'Error deleting city'}), 500
 
-@app.route('/locations/<location_name>/cities_part/<city_name>', methods=['PUT'])
+@app.route('/locations/addpart/<location_name>/cities/<city_name>', methods=['PUT'])
 def update_city(location_name, city_name):
     # Update a specific city in a specific location
     updated_city = request.get_json()
     location = collection.find_one({'locationName': location_name, 'cities.cityName': city_name})
-
+    print(updated_city,location)
     if location:
         cities = location['cities']
+        print(cities)
         city_to_update = next((city for city in cities if city['cityName'] == city_name), None)
 
         if city_to_update:
@@ -123,6 +124,7 @@ def update_city(location_name, city_name):
                 {'locationName': location_name, 'cities.cityName': city_name},
                 {'$set': {'cities': cities}}
             )
+            print(city_to_update)
             # Send email notification for city/location update
             subject = 'City/Location Update'
             sender = 'mitashiv0101@gmail.com'
