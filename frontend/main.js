@@ -145,10 +145,10 @@ function addNewPart(locationName, cityName, updatedCity) {
   })
     .then(response => response.json())
     .then(data => {
-      //(data.message); // Success message from the server
+      (data.message); // Success message from the server
     })
     .catch(error => {
-      //error('Error:', error);
+      error('Error:', error);
     });
 }
 
